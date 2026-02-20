@@ -1,0 +1,222 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole @default(USER)
+  tenantId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  evaluations     Evaluation[]
+  responses       Response[]
+  evidence        Evidence[]
+  economicConfigs EconomicConfig[]
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  CONSULTANT
+  USER
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  settings  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users           User[]
+  evaluations     Evaluation[]
+  economicConfigs EconomicConfig[]
+
+  @@map("tenants")
+}
+
+model Evaluation {
+  id             String           @id @default(uuid())
+  tenantId       String
+  name           String
+  company        String
+  sector         String?
+  status         EvaluationStatus @default(DRAFT)
+  globalMaturity Float?
+  classification String?
+  createdById    String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  createdBy      User            @relation(fields: [createdById], references: [id])
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  dimensions     Dimension[]
+  responses      Response[]
+  evidence       Evidence[]
+  roadmap        Roadmap?
+  economicConfig EconomicConfig?
+
+  @@index([tenantId])
+  @@index([status])
+  @@map("evaluations")
+}
+
+enum EvaluationStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Dimension {
+  id           String   @id @default(uuid())
+  evaluationId String
+  code         String // D1, D2, ..., D12
+  name         String
+  maturity     Float?
+  weight       Float
+  progress     Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  evaluation  Evaluation     @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  subcriteria Subcriterion[]
+  responses   Response[]
+
+  @@index([evaluationId])
+  @@map("dimensions")
+}
+
+model Subcriterion {
+  id          String   @id @default(uuid())
+  dimensionId String
+  code        String // D1.1, D1.2, etc.
+  name        String
+  description String?
+  maturity    Float?
+  weight      Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  dimension Dimension  @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  responses Response[]
+
+  @@index([dimensionId])
+  @@map("subcriteria")
+}
+
+model Response {
+  id             String   @id @default(uuid())
+  evaluationId   String
+  dimensionId    String?
+  subcriterionId String
+  value          Float
+  notes          String?
+  answeredById   String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  evaluation   Evaluation   @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  dimension    Dimension?   @relation(fields: [dimensionId], references: [id])
+  subcriterion Subcriterion @relation(fields: [subcriterionId], references: [id])
+  answeredBy   User         @relation(fields: [answeredById], references: [id])
+  evidence     Evidence[]
+
+  @@index([evaluationId])
+  @@index([subcriterionId])
+  @@map("responses")
+}
+
+model Evidence {
+  id           String       @id @default(uuid())
+  evaluationId String
+  responseId   String?
+  type         EvidenceType
+  filePath     String
+  fileSize     BigInt?
+  mimeType     String?
+  description  String?
+  metadata     Json?
+  createdById  String
+  createdAt    DateTime     @default(now())
+
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  response   Response?  @relation(fields: [responseId], references: [id])
+  createdBy  User       @relation(fields: [createdById], references: [id])
+
+  @@index([evaluationId])
+  @@index([type])
+  @@map("evidence")
+}
+
+enum EvidenceType {
+  PHOTO
+  DOCUMENT
+  VIDEO
+  AUDIO
+}
+
+model Roadmap {
+  id               String   @id @default(uuid())
+  evaluationId     String   @unique
+  phases           Json
+  totalROI         Float?
+  totalInvestment  Float?
+  totalAnnualValue Float?
+  generatedAt      DateTime @default(now())
+
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+
+  @@map("roadmaps")
+}
+
+model EconomicConfig {
+  id                    String   @id @default(uuid())
+  tenantId              String?
+  evaluationId          String?  @unique
+  currency              String   @default("USD") // USD, COP, EUR, etc.
+  costPerMonth          Float    @default(50000) // Costo por mes de proyecto
+  valuePerMaturityPoint Float    @default(150000) // Valor anual por punto de madurez ganado
+  exchangeRate          Float? // Tasa de cambio si aplica
+  quickWinThreshold     Float    @default(0.2) // ROI mínimo para quick win (20%)
+  maxQuickWinMonths     Int      @default(3) // Máximo de meses para quick win
+  updatedById           String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  tenant     Tenant?     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  evaluation Evaluation? @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  updatedBy  User        @relation(fields: [updatedById], references: [id])
+
+  @@index([tenantId])
+  @@index([evaluationId])
+  @@map("economic_configs")
+}
+
+model BenchmarkData {
+  id             String   @id @default(uuid())
+  sector         String
+  dimensionCode  String?
+  maturity       Float
+  evaluationDate DateTime @default(now())
+  anonymized     Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  @@index([sector])
+  @@index([dimensionCode])
+  @@map("benchmark_data")
+}

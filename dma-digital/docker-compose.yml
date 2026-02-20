@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: dma-postgres
+    environment:
+      POSTGRES_DB: dma_db
+      POSTGRES_USER: dma_user
+      POSTGRES_PASSWORD: dma_pass
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dma_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis es opcional, comentado por defecto
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: dma-redis
+  #   ports:
+  #     - "6379:6379"
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # MinIO es opcional, comentado por defecto
+  # minio:
+    image: minio/minio:latest
+    container_name: dma-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dma-backend
+    environment:
+      DATABASE_URL: postgresql://dma_user:dma_pass@postgres:5432/dma_db
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-in-production}
+      PORT: 3001
+      NODE_ENV: ${NODE_ENV:-development}
+      MINIO_ENABLED: ${MINIO_ENABLED:-false}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run dev"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: dma-frontend
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+    restart: unless-stopped
+
+  # ML Service es opcional, comentado por defecto
+  # ml-service:
+  #   build:
+  #     context: ./ml-service
+  #     dockerfile: Dockerfile
+  #   container_name: dma-ml-service
+  #   environment:
+  #     DATABASE_URL: postgresql://dma_user:dma_pass@postgres:5432/dma_db
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./ml-service:/app
+  #   command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
+  minio_data:
