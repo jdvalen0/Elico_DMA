@@ -9,15 +9,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$SCRIPT_DIR/backend"
 FRONTEND_DIR="$SCRIPT_DIR/frontend"
 BACKEND_PORT=3001
+DB_PORT="${DB_PORT:-5433}"
+if [ -z "$DATABASE_URL" ]; then
+  export DATABASE_URL="postgresql://dma_user:dma_pass@localhost:${DB_PORT}/dma_test_db"
+fi
 
 echo "🚀 Arrancando sistema DMA Digital ELICO 4.0..."
 echo ""
 
 # Verificar base de datos
 echo "🔍 Verificando base de datos..."
-if ! psql "postgresql://dma_user:dma_pass@localhost:5433/dma_test_db" -c "SELECT 1;" > /dev/null 2>&1; then
+if ! psql "$DATABASE_URL" -c "SELECT 1;" > /dev/null 2>&1; then
     echo "❌ Error: No se puede conectar a la base de datos"
-    echo "   Verifica que PostgreSQL esté corriendo en el puerto 5433"
+    echo "   URL: $DATABASE_URL"
+    echo "   Si PostgreSQL va en 5432: DB_PORT=5432 bash arrancar.sh"
     exit 1
 fi
 echo "✅ Base de datos conectada"
@@ -37,8 +42,7 @@ if lsof -i :$BACKEND_PORT > /dev/null 2>&1; then
     fi
 fi
 
-# Configurar variables de entorno
-export DATABASE_URL="postgresql://dma_user:dma_pass@localhost:5433/dma_test_db"
+# Configurar variables de entorno (DATABASE_URL ya definida arriba si no existía)
 export JWT_SECRET="dev-secret"
 export JWT_REFRESH_SECRET="dev-refresh-secret"
 export PORT=$BACKEND_PORT

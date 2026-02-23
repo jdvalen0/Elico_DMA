@@ -8,8 +8,9 @@ set -e
 echo "🚀 Iniciando backend DMA..."
 echo ""
 
-# Configurar variables de entorno
-export DATABASE_URL="postgresql://dma_user:dma_pass@localhost:5433/dma_test_db"
+# Configurar variables de entorno (respeta DATABASE_URL o DB_PORT si ya están definidos)
+DB_PORT="${DB_PORT:-5433}"
+[ -z "$DATABASE_URL" ] && export DATABASE_URL="postgresql://dma_user:dma_pass@localhost:${DB_PORT}/dma_test_db"
 export JWT_SECRET="dev-secret"
 export JWT_REFRESH_SECRET="dev-refresh-secret"
 export PORT=3001

@@ -47,9 +47,13 @@ Antes de usar la aplicación, es necesario arrancar el backend y el frontend.
 
 #### Arrancar el Sistema
 
-**Un solo comando**:
+**Un solo comando** (desde la raíz del repo `Elico_DMA`):
 ```bash
-cd /home/juan-david-valencia/Escritorio/Elico_DMA/dma-digital
+bash arrancar.sh
+```
+O desde dentro del proyecto:
+```bash
+cd dma-digital
 bash arrancar.sh
 ```
 

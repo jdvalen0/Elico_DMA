@@ -53,8 +53,8 @@ export const LoginPage = () => {
         code: err.code,
       });
 
-      if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
-        setError('Error de conexión. Verifica que el backend esté corriendo en http://localhost:3001');
+      if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error') || err.code === 'ECONNABORTED') {
+        setError('Error de conexión. Verifica que el backend esté corriendo en http://localhost:3001 (o que arrancar.sh esté en ejecución).');
       } else if (err.response?.status === 401) {
         setError('Credenciales inválidas. Verifica tu email y contraseña.');
       } else if (err.response?.status === 500) {

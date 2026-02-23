@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Box, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { Assessment, Dashboard, PhotoLibrary, Description, Home } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import { Box, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Button } from '@mui/material';
+import { Assessment, Dashboard, PhotoLibrary, Description, Home, Logout } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { RouteDebugger } from './RouteDebugger';
+import { logout } from '../store/slices/authSlice';
+import { RootState } from '../store';
 
 const DRAWER_WIDTH = 240;
 
@@ -17,6 +20,13 @@ const menuItems = [
 export const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login', { replace: true });
+  };
 
   useEffect(() => {
     console.log('🟡 Layout - Component mounted');
@@ -72,9 +82,19 @@ export const Layout = () => {
         }}
       >
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             DMA Digital ELICO 4.0
           </Typography>
+          {user && (
+            <>
+              <Typography variant="body2" sx={{ mr: 2 }} title={user.email}>
+                {user.email}
+              </Typography>
+              <Button color="inherit" startIcon={<Logout />} onClick={handleLogout} size="small">
+                Cerrar sesión
+              </Button>
+            </>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer
