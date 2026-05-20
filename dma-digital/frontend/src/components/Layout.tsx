@@ -1,12 +1,32 @@
 import { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Button } from '@mui/material';
-import { Assessment, Dashboard, PhotoLibrary, Description, Home, Logout } from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { RouteDebugger } from './RouteDebugger';
+
+import {
+  Box,
+  Drawer,
+  AppBar,
+  Toolbar,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Button,
+} from '@mui/material';
+
+import {
+  Dashboard,
+  PhotoLibrary,
+  Description,
+  Home,
+  Logout,
+} from '@mui/icons-material';
+
 import { logout } from '../store/slices/authSlice';
 import { RootState } from '../store';
+import { RouteDebugger } from './RouteDebugger';
 
 const DRAWER_WIDTH = 240;
 
@@ -21,6 +41,7 @@ export const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+
   const user = useSelector((state: RootState) => state.auth.user);
 
   const handleLogout = () => {
@@ -29,75 +50,70 @@ export const Layout = () => {
   };
 
   useEffect(() => {
-    console.log('🟡 Layout - Component mounted');
-  }, []);
-
-  // Debug: Log navigation
-  useEffect(() => {
-    console.log('🔵 Layout - Current location:', location.pathname);
-    console.log('🔵 Layout - Location object:', location);
+    console.log('🔵 Current route:', location.pathname);
   }, [location]);
 
   const handleNavigation = (path: string) => {
-    console.log('🟢 Layout - handleNavigation called with path:', path);
-    console.log('🟢 Layout - Current pathname before navigation:', location.pathname);
-    console.log('🟢 Layout - Current URL:', window.location.href);
-    console.log('🟢 Layout - navigate function exists:', typeof navigate === 'function');
-    
-    // Prevenir navegación si ya estamos en esa ruta
-    if (location.pathname === path) {
-      console.log('🟡 Layout - Ya estamos en esa ruta, ignorando navegación');
-      return;
-    }
-    
-    try {
-      // FORZAR navegación usando window.location como fallback
-      console.log('🟢 Layout - Attempting navigation to:', path);
-      navigate(path, { replace: false });
-      
-      // Fallback: si después de 200ms no cambió, usar window.location
-      setTimeout(() => {
-        if (location.pathname !== path) {
-          console.warn('🟡 Layout - Navigation did not work, using window.location as fallback');
-          window.location.href = path;
-        } else {
-          console.log('✅ Layout - Navigation successful! New pathname:', location.pathname);
-        }
-      }, 200);
-    } catch (error) {
-      console.error('🔴 Layout - Error during navigation:', error);
-      // Fallback directo
-      console.log('🟡 Layout - Using window.location as fallback');
-      window.location.href = path;
-    }
+    if (location.pathname === path) return;
+
+    navigate(path);
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', width: '100%' }}>
+      {/* APP BAR */}
       <AppBar
         position="fixed"
         sx={{
           width: `calc(100% - ${DRAWER_WIDTH}px)`,
           ml: `${DRAWER_WIDTH}px`,
+          boxSizing: 'border-box',
+          zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
         <Toolbar>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ flexGrow: 1 }}
+          >
             DMA Digital ELICO 4.0
           </Typography>
+
           {user && (
             <>
-              <Typography variant="body2" sx={{ mr: 2 }} title={user.email}>
+              <Typography
+                variant="body2"
+                sx={{
+                  mr: 2,
+                  maxWidth: 200,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title={user.email}
+              >
                 {user.email}
               </Typography>
-              <Button color="inherit" startIcon={<Logout />} onClick={handleLogout} size="small">
-                Cerrar sesión
+
+              <Button
+                color="inherit"
+                startIcon={<Logout />}
+                onClick={handleLogout}
+                size="small"
+              >
+                Cerrar
               </Button>
             </>
           )}
         </Toolbar>
       </AppBar>
+
+      {/* DRAWER */}
       <Drawer
+        variant="permanent"
+        anchor="left"
         sx={{
           width: DRAWER_WIDTH,
           flexShrink: 0,
@@ -106,34 +122,23 @@ export const Layout = () => {
             boxSizing: 'border-box',
           },
         }}
-        variant="permanent"
-        anchor="left"
       >
         <Toolbar />
+
         <Box sx={{ overflow: 'auto' }}>
           <List>
             {menuItems.map((item) => (
               <ListItem key={item.text} disablePadding>
                 <ListItemButton
-                  selected={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🟣 ListItemButton - Click detected for:', item.text, 'path:', item.path);
-                    console.log('🟣 ListItemButton - Event:', e);
-                    console.log('🟣 ListItemButton - Current URL:', window.location.href);
-                    
-                    // TEST DIRECTO: Intentar navegación inmediata
-                    if (item.path === '/evidence') {
-                      console.log('🔴 TEST DIRECTO - Navegando a /evidence');
-                      window.location.href = '/evidence';
-                      return;
-                    }
-                    
-                    handleNavigation(item.path);
-                  }}
+                  selected={
+                    location.pathname === item.path ||
+                    (item.path !== '/' &&
+                      location.pathname.startsWith(item.path))
+                  }
+                  onClick={() => handleNavigation(item.path)}
                 >
                   <ListItemIcon>{item.icon}</ListItemIcon>
+
                   <ListItemText primary={item.text} />
                 </ListItemButton>
               </ListItem>
@@ -141,18 +146,33 @@ export const Layout = () => {
           </List>
         </Box>
       </Drawer>
+
+      {/* MAIN CONTENT */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
           bgcolor: 'background.default',
+          minWidth: 0,
+          overflowX: 'hidden',
+
           p: 3,
-          width: `calc(100% - ${DRAWER_WIDTH}px)`,
+          pt: 10,
         }}
       >
-        <Toolbar />
         <RouteDebugger />
-        <Outlet />
+
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: '100%',
+            minWidth: 0,
+          }}
+        >
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

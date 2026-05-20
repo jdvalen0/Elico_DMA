@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://172.25.169.180:3001/api';
+const API_URL = "https://kid-totally-denied-gotten.trycloudflare.com/api";
 
 export const api = axios.create({
   baseURL: API_URL,
