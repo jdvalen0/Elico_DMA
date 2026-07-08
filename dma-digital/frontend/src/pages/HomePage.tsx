@@ -120,31 +120,41 @@ export const HomePage = () => {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         {evaluations.map((evaluation) => (
-          <Grid item xs={12} sm={6} md={4} key={evaluation.id}>
+          <Grid item xs={12} sm={6} md={6} key={evaluation.id}>
             <Card
-              sx={{ cursor: 'pointer', height: '100%' }}
+              sx={{
+                cursor: 'pointer',
+                height: '100%',
+                minHeight: 200,
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'box-shadow 0.2s',
+                '&:hover': { boxShadow: 4 },
+              }}
               onClick={() => navigate(`/evaluations/${evaluation.id}`)}
             >
-              <CardContent>
+              <CardContent sx={{ p: 3, flex: 1, '&:last-child': { pb: 3 } }}>
                 <Box display="flex" alignItems="center" mb={2}>
-                  <Assessment sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography variant="h6">{evaluation.name}</Typography>
+                  <Assessment sx={{ mr: 1.5, color: 'primary.main', fontSize: 28 }} />
+                  <Typography variant="h6" component="h2" sx={{ lineHeight: 1.3 }}>
+                    {evaluation.name}
+                  </Typography>
                 </Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                   {evaluation.company}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                   Estado: {evaluation.status}
                 </Typography>
                 {evaluation.globalMaturity != null && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ mt: 1.5 }}>
                     Madurez: {evaluation.globalMaturity.toFixed(2)} / 5.0
                   </Typography>
                 )}
                 {evaluation.classification && (
-                  <Typography variant="body2" color="primary">
+                  <Typography variant="body2" color="primary" sx={{ mt: 1 }}>
                     {evaluation.classification}
                   </Typography>
                 )}

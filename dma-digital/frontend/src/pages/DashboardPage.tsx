@@ -82,6 +82,7 @@ export const DashboardPage = () => {
       // Preparar datos para gráfico de barras
       const barData = sortedDimensions.map((dim: any) => ({
         name: dim.code,
+        fullName: dim.name,
         madurez: dim.maturity || 0,
       }));
 
@@ -283,33 +284,101 @@ export const DashboardPage = () => {
       )}
 
       {tabValue === 1 && (
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Madurez por Dimensión
-            </Typography>
-            <ResponsiveContainer width="100%" height={600}>
-              <BarChart data={data.barData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45}
-                  textAnchor="end"
-                  height={100}
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  domain={[0, 5]} 
-                  tick={{ fontSize: 12 }}
-                  label={{ value: 'Madurez', angle: -90, position: 'insideLeft' }}
-                />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="madurez" fill="#0066CC" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <Grid container spacing={3}>
+          {/* Gráfico de barras */}
+          <Grid item xs={12} md={8}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Madurez por Dimensión
+                </Typography>
+                <ResponsiveContainer width="100%" height={520}>
+                  <BarChart data={data.barData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="name"
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis
+                      domain={[0, 5]}
+                      tick={{ fontSize: 12 }}
+                      label={{ value: 'Madurez', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip
+                      formatter={(value: any) => [Number(value).toFixed(2), 'Madurez']}
+                      labelFormatter={(label: string) => {
+                        const dim = data.barData.find((d: any) => d.name === label);
+                        return dim ? `${label}: ${dim.fullName}` : label;
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="madurez" fill="#0066CC" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Leyenda: código + nombre + puntaje */}
+          <Grid item xs={12} md={4}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Nombres de Dimensiones
+                </Typography>
+                <Box display="flex" flexDirection="column" gap={1}>
+                  {data.barData.map((dim: any) => (
+                    <Box
+                      key={dim.name}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{
+                        p: 1,
+                        borderRadius: 1,
+                        bgcolor: 'action.hover',
+                        '&:hover': { bgcolor: 'action.selected' },
+                      }}
+                    >
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Typography
+                          variant="caption"
+                          fontWeight="bold"
+                          sx={{
+                            bgcolor: 'primary.main',
+                            color: 'primary.contrastText',
+                            px: 0.75,
+                            py: 0.25,
+                            borderRadius: 0.5,
+                            minWidth: 36,
+                            textAlign: 'center',
+                            fontSize: '0.7rem',
+                          }}
+                        >
+                          {dim.name}
+                        </Typography>
+                        <Typography variant="body2" sx={{ lineHeight: 1.2 }}>
+                          {dim.fullName}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        fontWeight="bold"
+                        color={dim.madurez >= 4 ? 'success.main' : dim.madurez >= 2.5 ? 'warning.main' : 'error.main'}
+                        sx={{ ml: 1, whiteSpace: 'nowrap' }}
+                      >
+                        {dim.madurez > 0 ? dim.madurez.toFixed(2) : '—'}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       )}
 
       {tabValue === 2 && id && <RoadmapView evaluationId={id} />}

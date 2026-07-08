@@ -20,7 +20,7 @@ export const authenticateToken = (
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    throw new AppError(401, 'No token provided', 'UNAUTHORIZED');
+    return next(new AppError(401, 'No token provided', 'UNAUTHORIZED'));
   }
 
   try {
@@ -38,18 +38,18 @@ export const authenticateToken = (
 
     next();
   } catch (error) {
-    throw new AppError(403, 'Invalid or expired token', 'FORBIDDEN');
+    next(new AppError(403, 'Invalid or expired token', 'FORBIDDEN'));
   }
 };
 
 export const requireRole = (...roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      throw new AppError(401, 'Not authenticated', 'UNAUTHORIZED');
+      return next(new AppError(401, 'Not authenticated', 'UNAUTHORIZED'));
     }
 
     if (!roles.includes(req.user.role)) {
-      throw new AppError(403, 'Insufficient permissions', 'FORBIDDEN');
+      return next(new AppError(403, 'Insufficient permissions', 'FORBIDDEN'));
     }
 
     next();

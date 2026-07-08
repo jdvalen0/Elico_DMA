@@ -7,13 +7,14 @@ import {
   updateEvaluation,
   deleteEvaluation,
 } from '../controllers/evaluations';
+import { asyncHandler } from '../utils/asyncHandler';
 
 export const evaluationRoutes = Router();
 
 evaluationRoutes.use(authenticateToken);
 
-evaluationRoutes.get('/', getEvaluations);
-evaluationRoutes.get('/:id', getEvaluation);
-evaluationRoutes.post('/', createEvaluation);
-evaluationRoutes.patch('/:id', updateEvaluation);
-evaluationRoutes.delete('/:id', deleteEvaluation);
+evaluationRoutes.get('/', asyncHandler(getEvaluations));
+evaluationRoutes.get('/:id', asyncHandler(getEvaluation));
+evaluationRoutes.post('/', asyncHandler(createEvaluation));
+evaluationRoutes.patch('/:id', asyncHandler(updateEvaluation));
+evaluationRoutes.delete('/:id', asyncHandler(deleteEvaluation));

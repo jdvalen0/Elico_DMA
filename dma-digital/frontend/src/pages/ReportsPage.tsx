@@ -334,7 +334,7 @@ export const ReportsPage = () => {
 
       {jobStatus?.status === 'processing' && (
         <Card sx={{ mb: 3 }}>
-          <CardContent>
+          <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
               <Typography variant="h6">
                 Generando reporte...
@@ -368,10 +368,10 @@ export const ReportsPage = () => {
         </Card>
       )}
 
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
               <Typography variant="h6" gutterBottom>
                 Seleccionar Evaluación
               </Typography>
@@ -422,7 +422,7 @@ export const ReportsPage = () => {
 
         <Grid item xs={12} md={6}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
               <Typography variant="h6" gutterBottom>
                 Tipo de Reporte
               </Typography>
@@ -455,7 +455,7 @@ export const ReportsPage = () => {
 
         <Grid item xs={12}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
               <Box display="flex" gap={2} justifyContent="center">
                 <Button
                   variant="contained"

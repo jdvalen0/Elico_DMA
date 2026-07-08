@@ -17,6 +17,28 @@ fi
 echo "🚀 Arrancando sistema DMA Digital ELICO 4.0..."
 echo ""
 
+# Si ya corre con Docker Compose, no hace falta arrancar nativo
+if docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'dma-backend' \
+   && docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'dma-frontend'; then
+    echo "ℹ️  Docker Compose ya tiene backend y frontend activos."
+    echo "   Frontend: http://localhost:3000"
+    echo "   Backend:  http://localhost:3001/health"
+    echo ""
+    echo "   Para modo nativo (sin Docker), primero ejecuta:"
+    echo "   docker compose down"
+    exit 0
+fi
+
+if ! command -v psql > /dev/null 2>&1; then
+    echo "❌ Error: falta el cliente psql (postgresql-client)"
+    echo "   Ubuntu/Debian: sudo apt install postgresql-client"
+    echo ""
+    echo "   Alternativa con Docker (sin arrancar.sh):"
+    echo "   cd $SCRIPT_DIR && docker compose up -d"
+    echo "   Luego abre http://localhost:3000"
+    exit 1
+fi
+
 # Verificar base de datos
 echo "🔍 Verificando base de datos..."
 if ! psql "$DATABASE_URL" -c "SELECT 1;" > /dev/null 2>&1; then

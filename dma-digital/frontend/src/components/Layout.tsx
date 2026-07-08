@@ -146,8 +146,10 @@ export const Layout = () => {
         sx={{
           flexGrow: 1,
           bgcolor: 'background.default',
-          p: 3,
+          p: { xs: 2, sm: 3 },
           width: `calc(100% - ${DRAWER_WIDTH}px)`,
+          maxWidth: '100%',
+          boxSizing: 'border-box',
         }}
       >
         <Toolbar />

@@ -5,12 +5,13 @@ import {
   upsertEconomicConfig,
   deleteEconomicConfig,
 } from '../controllers/economicConfig';
+import { asyncHandler } from '../utils/asyncHandler';
 
 export const economicConfigRoutes = Router();
 
 economicConfigRoutes.use(authenticateToken);
 
-economicConfigRoutes.get('/', getEconomicConfig);
-economicConfigRoutes.post('/', upsertEconomicConfig);
-economicConfigRoutes.put('/:id', upsertEconomicConfig);
-economicConfigRoutes.delete('/:id', deleteEconomicConfig);
+economicConfigRoutes.get('/', asyncHandler(getEconomicConfig));
+economicConfigRoutes.post('/', asyncHandler(upsertEconomicConfig));
+economicConfigRoutes.put('/:id', asyncHandler(upsertEconomicConfig));
+economicConfigRoutes.delete('/:id', asyncHandler(deleteEconomicConfig));

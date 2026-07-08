@@ -6,6 +6,7 @@ import {
   deleteEvidence,
 } from '../controllers/evidence';
 import multer from 'multer';
+import { asyncHandler } from '../utils/asyncHandler';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -16,7 +17,7 @@ evidenceRoutes.use(authenticateToken);
 evidenceRoutes.post(
   '/evaluations/:evaluationId/evidence',
   upload.single('file'),
-  uploadEvidence
+  asyncHandler(uploadEvidence)
 );
-evidenceRoutes.get('/evaluations/:evaluationId/evidence', getEvidence);
-evidenceRoutes.delete('/evidence/:id', deleteEvidence);
+evidenceRoutes.get('/evaluations/:evaluationId/evidence', asyncHandler(getEvidence));
+evidenceRoutes.delete('/evidence/:id', asyncHandler(deleteEvidence));

@@ -114,11 +114,11 @@ export const EvaluationPage = () => {
       {id && <OfflineIndicator evaluationId={id} />}
 
       {evaluation && (
-        <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
+            <Card sx={{ height: '100%' }}>
+              <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                   Empresa
                 </Typography>
                 <Typography variant="h6">{evaluation.company}</Typography>
@@ -126,16 +126,16 @@ export const EvaluationPage = () => {
             </Card>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
+            <Card sx={{ height: '100%' }}>
+              <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                   Madurez Global
                 </Typography>
                 <Typography variant="h6">
                   {evaluation.globalMaturity?.toFixed(2) || 'N/A'} / 5.0
                 </Typography>
                 {evaluation.classification && (
-                  <Typography variant="body2" color="primary">
+                  <Typography variant="body2" color="primary" sx={{ mt: 1 }}>
                     {evaluation.classification}
                   </Typography>
                 )}
@@ -143,9 +143,9 @@ export const EvaluationPage = () => {
             </Card>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
+            <Card sx={{ height: '100%' }}>
+              <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                   Estado
                 </Typography>
                 <Typography variant="h6">{evaluation.status}</Typography>
