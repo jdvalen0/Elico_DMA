@@ -51,7 +51,7 @@ export const HomePage = () => {
       console.log('Cargando evaluaciones...', {
         isAuthenticated,
         hasToken: !!token,
-        apiUrl: import.meta.env.VITE_API_URL || 'https://kid-totally-denied-gotten.trycloudflare.com/api',
+        apiUrl: import.meta.env.VITE_API_URL || 'https://reggae-legume-calculate.ngrok-free.dev/api',
       });
       
       const response = await api.get('/evaluations');
