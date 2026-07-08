@@ -45,6 +45,7 @@ Ver [INSTALACION_WINDOWS.md](./INSTALACION_WINDOWS.md) para instrucciones espec�
 ## 📚 Documentación
 
 - **[GUIA_USO_E_INTERPRETACION.md](./GUIA_USO_E_INTERPRETACION.md)**: Guía completa de uso de la aplicación, interpretación de resultados, y detalles de cada dimensión y subcriterio
+- **[ACTUALIZACION_JUL2026.md](./ACTUALIZACION_JUL2026.md)**: Pasos para actualizar en producción (ayuda en línea + orden D01–D09)
 - **[ARQUITECTURA_TECNICA.md](./ARQUITECTURA_TECNICA.md)**: Arquitectura del sistema, stack tecnológico, mejores prácticas, y problemas resueltos
 - **[FUNDAMENTACION_CIENTIFICA.md](./FUNDAMENTACION_CIENTIFICA.md)**: Modelo matemático, estado del arte, validación científica, y tendencias internacionales
 
@@ -81,6 +82,8 @@ Ver [INSTALACION_WINDOWS.md](./INSTALACION_WINDOWS.md) para instrucciones espec�
 - ✅ **12 dimensiones** de madurez digital industrial
 - ✅ **62 subcriterios** evaluables
 - ✅ **Escala 0-5** para cada subcriterio
+- ✅ **Ayuda en línea** desplegable por subcriterio (qué evaluar, preguntas clave, ejemplos)
+- ✅ **Códigos D01–D09** para orden numérico correcto en reportes y listados
 - ✅ **Cálculo automático** de madurez (subcriterio → dimensión → global)
 - ✅ **Clasificación automática** (Reactivo, Inicial, Estructurado, Integrado, Optimizado, Predictivo/Inteligente)
 
@@ -100,6 +103,7 @@ Ver [INSTALACION_WINDOWS.md](./INSTALACION_WINDOWS.md) para instrucciones espec�
 ### Reportes
 
 - ✅ **Reportes PDF** (Ejecutivo, Técnico, Normativo)
+- ✅ **Dimensiones ordenadas D01→D12** en el contenido del reporte
 - ✅ **Generación asíncrona** con polling de estado
 - ✅ **Descarga automática** cuando está listo
 
@@ -144,6 +148,10 @@ Ver [INSTALACION_WINDOWS.md](./INSTALACION_WINDOWS.md) para instrucciones espec�
 7. **Generar reporte**: Descarga un reporte PDF completo
 
 Para más detalles, consulta [GUIA_USO_E_INTERPRETACION.md](./GUIA_USO_E_INTERPRETACION.md).
+
+### Actualizar en otro equipo (producción)
+
+Si ya tienes una instalación en marcha, sigue [ACTUALIZACION_JUL2026.md](./ACTUALIZACION_JUL2026.md): `git pull`, reconstruir servicios y ejecutar `migrate-dimension-codes.ts` si hay datos existentes.
 
 ---
 

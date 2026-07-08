@@ -1,7 +1,7 @@
 # Guía de Uso e Interpretación - DMA Digital ELICO 4.0
 
-**Versión**: 1.0.0  
-**Última actualización**: Febrero 2026
+**Versión**: 1.1.0  
+**Última actualización**: Julio 2026
 
 ---
 
@@ -11,6 +11,7 @@
    - [Inicio de Sesión](#1-inicio-de-sesión)
    - [Crear una Evaluación](#2-crear-una-evaluación)
    - [Completar una Evaluación](#3-completar-una-evaluación)
+     - [Ayuda en línea por subcriterio](#ayuda-en-línea-por-subcriterio)
    - [Dashboard y Análisis](#4-dashboard-y-análisis)
    - [Roadmap](#5-roadmap)
    - [Reportes](#6-reportes)
@@ -146,24 +147,40 @@ Para detener: Presionar `Ctrl+C` en cada terminal.
 
 La evaluación tiene **12 dimensiones**, cada una con **5-6 subcriterios**:
 
-- **D1**: Estrategia y Gobierno Digital (5 subcriterios)
-- **D2**: Talento y Cultura Organizacional (5 subcriterios)
-- **D3**: Arquitectura OT/IT (5 subcriterios)
-- **D4**: Redes Industriales (5 subcriterios)
-- **D5**: Ciberseguridad Industrial (5 subcriterios)
-- **D6**: Gestión de Datos e IA (6 subcriterios)
-- **D7**: Procesos Productivos (5 subcriterios)
-- **D8**: Automatización y Control (5 subcriterios)
-- **D9**: Mantenimiento y Confiabilidad (5 subcriterios)
+- **D01**: Estrategia y Gobierno Digital (5 subcriterios)
+- **D02**: Talento y Cultura Organizacional (5 subcriterios)
+- **D03**: Arquitectura OT/IT (5 subcriterios)
+- **D04**: Redes Industriales (5 subcriterios)
+- **D05**: Ciberseguridad Industrial (5 subcriterios)
+- **D06**: Gestión de Datos e IA (6 subcriterios)
+- **D07**: Procesos Productivos (5 subcriterios)
+- **D08**: Automatización y Control (5 subcriterios)
+- **D09**: Mantenimiento y Confiabilidad (5 subcriterios)
 - **D10**: Gestión Energética y Sostenibilidad (5 subcriterios)
 - **D11**: Calidad y Cumplimiento (5 subcriterios)
 - **D12**: Cumplimiento Normativo Colombiano 2026 (6 subcriterios)
 
+> **Nota sobre códigos**: Las dimensiones 1 a 9 usan el prefijo `D01`–`D09` (no `D1`–`D9`) para que reportes y listados mantengan el orden numérico correcto (D01, D02, … D09, D10, D11, D12). En la Parte II de esta guía los títulos siguen la nomenclatura descriptiva D1–D12; corresponden al mismo contenido.
+
 **Total**: 62 subcriterios a evaluar
+
+#### Ayuda en línea por subcriterio
+
+Cada pregunta del formulario incluye **ayuda contextual desplegable**:
+
+1. Abre una dimensión en la evaluación (pestañas D01, D02, etc.).
+2. Junto al nombre de cada subcriterio verás el icono **?** (ayuda).
+3. Haz clic para desplegar:
+   - **Qué evaluar**: descripción del criterio
+   - **Preguntas clave**: qué verificar en terreno
+   - **Ejemplos por nivel**: referencias para puntuar 0–1, 2–3 o 4–5
+4. Vuelve a hacer clic en **?** para ocultar el panel.
+
+Los textos provienen de esta guía y están en `frontend/src/constants/subcriteriaHelp.ts`.
 
 #### Cómo Evaluar
 
-1. **Navega a la dimensión**: Haz clic en la pestaña correspondiente (D1, D2, D3, etc.)
+1. **Navega a la dimensión**: Haz clic en la pestaña correspondiente (D01, D02, D03, etc.)
 2. **Para cada subcriterio**:
    - **Selecciona el valor**: Usa el slider (0-5) para indicar el nivel de madurez actual
    - **Agrega notas detalladas**: Explica el estado actual, menciona evidencias, iniciativas, desafíos
@@ -475,9 +492,11 @@ Cada mejora incluye:
 
 - **Portada**: Información de la evaluación
 - **Resumen Ejecutivo**: Madurez global, clasificación, conclusiones principales
-- **Madurez por Dimensión**: Tabla completa con valores y clasificaciones
+- **Madurez por Dimensión**: Tabla completa con valores y clasificaciones, **ordenadas D01 → D12** (orden numérico, no alfabético)
 - **Top 5 Gaps Críticos**: Dimensiones con mayor gap hacia la excelencia
 - **Recomendaciones Prioritarias**: Acciones sugeridas basadas en gaps
+
+> Las dimensiones aparecen en secuencia D01, D02, D03, … D12 gracias al formato de código con cero a la izquierda en D01–D09.
 
 ### 8. Evidencias
 
