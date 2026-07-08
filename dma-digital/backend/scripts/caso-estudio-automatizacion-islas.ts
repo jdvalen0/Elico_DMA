@@ -992,8 +992,28 @@ async function crearCasoEstudio() {
     console.log('4️⃣  Creando respuestas detalladas...');
     let totalResponses = 0;
 
+    // Normalizar RESPONSES_DATA para mapear D1 -> D01, D1.1 -> D01.1
+    const normalizedResponsesData: any = {};
+    for (const [dimKey, subcriteriaMap] of Object.entries(RESPONSES_DATA)) {
+      const dimNum = parseInt(dimKey.substring(1), 10);
+      const normalizedDimKey = dimNum < 10 ? `D0${dimNum}` : `D${dimNum}`;
+      
+      normalizedResponsesData[normalizedDimKey] = {};
+      for (const [subKey, val] of Object.entries(subcriteriaMap)) {
+        const match = subKey.match(/^D(\d+)\.(\d+)$/);
+        let normalizedSubKey = subKey;
+        if (match) {
+          const dNum = parseInt(match[1], 10);
+          const sNum = parseInt(match[2], 10);
+          const dStr = dNum < 10 ? `0${dNum}` : `${dNum}`;
+          normalizedSubKey = `D${dStr}.${sNum}`;
+        }
+        normalizedResponsesData[normalizedDimKey][normalizedSubKey] = val;
+      }
+    }
+
     for (const dimension of dimensions) {
-      const dimData = RESPONSES_DATA[dimension.code];
+      const dimData = normalizedResponsesData[dimension.code];
       if (!dimData) {
         console.warn(`   ⚠️  No hay datos para dimensión ${dimension.code}`);
         continue;

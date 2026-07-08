@@ -76,16 +76,16 @@ async function simularEvaluacionDMA() {
     for (const dimension of dimensions) {
       for (const subcriterion of dimension.subcriteria) {
         // Simular valores de madurez variados (0-5)
-        // D1 (Estrategia): Valores altos (3.5-4.5)
-        // D5 (Ciberseguridad): Valores medios-altos (2.5-4.0)
-        // D7-D11 (Operativas): Valores variados (2.0-4.0)
+        // D01 (Estrategia): Valores altos (3.5-4.5)
+        // D05 (Ciberseguridad): Valores medios-altos (2.5-4.0)
+        // D07-D11 (Operativas): Valores variados (2.0-4.0)
         let value = 3.0; // Valor por defecto
 
-        if (dimension.code === 'D1') {
+        if (dimension.code === 'D01') {
           value = 3.5 + Math.random() * 1.0; // 3.5-4.5
-        } else if (dimension.code === 'D5') {
+        } else if (dimension.code === 'D05') {
           value = 2.5 + Math.random() * 1.5; // 2.5-4.0
-        } else if (['D7', 'D8', 'D9', 'D10', 'D11'].includes(dimension.code)) {
+        } else if (['D07', 'D08', 'D09', 'D10', 'D11'].includes(dimension.code)) {
           value = 2.0 + Math.random() * 2.0; // 2.0-4.0
         } else {
           value = 2.5 + Math.random() * 1.5; // 2.5-4.0
