@@ -6,8 +6,11 @@ services:
       POSTGRES_DB: dma_db
       POSTGRES_USER: dma_user
       POSTGRES_PASSWORD: dma_pass
+    restart: unless-stopped
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
+    networks:
+      - shared_net
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -60,8 +63,11 @@ services:
       PORT: 3001
       NODE_ENV: ${NODE_ENV:-development}
       MINIO_ENABLED: ${MINIO_ENABLED:-false}
+    restart: unless-stopped
     ports:
       - "3001:3001"
+    networks:
+      - shared_net
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,7 +75,6 @@ services:
       - ./backend:/app
       - /app/node_modules
     command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run dev"
-    restart: unless-stopped
 
   frontend:
     build:
@@ -79,14 +84,14 @@ services:
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
     ports:
-      - "3000:3000"
+      - "3002:3000"
+    restart: unless-stopped
     depends_on:
       - backend
     volumes:
       - ./frontend:/app
       - /app/node_modules
     command: npm run dev -- --host 0.0.0.0
-    restart: unless-stopped
 
   # ML Service es opcional, comentado por defecto
   # ml-service:
@@ -108,3 +113,7 @@ services:
 volumes:
   postgres_data:
   minio_data:
+
+networks:
+  shared_net:
+    external: true

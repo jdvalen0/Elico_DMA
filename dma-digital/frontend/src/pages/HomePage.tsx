@@ -5,10 +5,10 @@ import {
   CardContent,
   Typography,
   Button,
-  Grid,
   CircularProgress,
   Alert,
 } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 import { Add, Assessment } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -51,7 +51,7 @@ export const HomePage = () => {
       console.log('Cargando evaluaciones...', {
         isAuthenticated,
         hasToken: !!token,
-        apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+        apiUrl: import.meta.env.VITE_API_URL || 'https://reggae-legume-calculate.ngrok-free.dev/api',
       });
       
       const response = await api.get('/evaluations');
@@ -119,50 +119,50 @@ export const HomePage = () => {
           {error}
         </Alert>
       )}
-
-      <Grid container spacing={4}>
-        {evaluations.map((evaluation) => (
-          <Grid item xs={12} sm={6} md={6} key={evaluation.id}>
-            <Card
-              sx={{
-                cursor: 'pointer',
-                height: '100%',
-                minHeight: 200,
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'box-shadow 0.2s',
-                '&:hover': { boxShadow: 4 },
-              }}
-              onClick={() => navigate(`/evaluations/${evaluation.id}`)}
-            >
-              <CardContent sx={{ p: 3, flex: 1, '&:last-child': { pb: 3 } }}>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Assessment sx={{ mr: 1.5, color: 'primary.main', fontSize: 28 }} />
-                  <Typography variant="h6" component="h2" sx={{ lineHeight: 1.3 }}>
-                    {evaluation.name}
+      <Box sx={{ width: '100%', minWidth: 0 }}>
+        <Grid container spacing={3} sx={{ width: '100%', margin: 0 }}>
+          {evaluations.map((evaluation) => (
+            <Grid xs={12} sm={6} md={4} key={evaluation.id}>
+              <Card
+                sx={{
+                  cursor: 'pointer',
+                  height: '100%',
+                  width: '100%',
+                  minWidth: 0,
+                  transition: 'box-shadow 0.2s',
+                  '&:hover': { boxShadow: 4 },
+                }}
+                onClick={() => navigate(`/evaluations/${evaluation.id}`)}
+              >
+                <CardContent>
+                  <Box display="flex" alignItems="center" mb={2} sx={{ minWidth: 0 }}>
+                    <Assessment sx={{ mr: 1, color: 'primary.main', flexShrink: 0 }} />
+                    <Typography variant="h6" sx={{ minWidth: 0, overflowWrap: 'break-word' }}>
+                      {evaluation.name}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    {evaluation.company}
                   </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {evaluation.company}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                  Estado: {evaluation.status}
-                </Typography>
-                {evaluation.globalMaturity != null && (
-                  <Typography variant="body2" sx={{ mt: 1.5 }}>
-                    Madurez: {evaluation.globalMaturity.toFixed(2)} / 5.0
+                  <Typography variant="body2" color="text.secondary">
+                    Estado: {evaluation.status}
                   </Typography>
-                )}
-                {evaluation.classification && (
-                  <Typography variant="body2" color="primary" sx={{ mt: 1 }}>
-                    {evaluation.classification}
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                  {evaluation.globalMaturity != null && (
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Madurez: {evaluation.globalMaturity.toFixed(2)} / 5.0
+                    </Typography>
+                  )}
+                  {evaluation.classification && (
+                    <Typography variant="body2" color="primary">
+                      {evaluation.classification}
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
 
       {evaluations.length === 0 && (
         <Box textAlign="center" py={8}>
