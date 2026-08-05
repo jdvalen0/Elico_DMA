@@ -177,6 +177,8 @@ model Roadmap {
   totalROI         Float?
   totalInvestment  Float?
   totalAnnualValue Float?
+  parameters       Json?
+  excludedByBudget Int      @default(0)
   generatedAt      DateTime @default(now())
 
   evaluation Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)

@@ -12,6 +12,12 @@ import {
   Chip,
   Grid,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
 } from '@mui/material';
 import { ExpandMore, TrendingUp, Schedule, AttachMoney, Settings } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +35,10 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
   const [roadmap, setRoadmap] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  const [companySize, setCompanySize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [budget, setBudget] = useState<string>('');
+
   const canEditConfig = user?.role === 'ADMIN' || user?.role === 'CONSULTANT';
 
   const loadRoadmap = async () => {
@@ -53,8 +62,13 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
     setLoading(true);
     setError('');
     try {
-      const response = await api.post(`/roadmap/evaluations/${evaluationId}/roadmap/generate`);
+      const parsedBudget = budget.trim() ? Number(budget) : undefined;
+      const response = await api.post(`/roadmap/evaluations/${evaluationId}/roadmap/generate`, {
+        companySize,
+        budget: parsedBudget && parsedBudget > 0 ? parsedBudget : undefined,
+      });
       setRoadmap(response.data);
+      setConfigDialogOpen(false);
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Error al generar roadmap');
     } finally {
@@ -65,6 +79,49 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
   useEffect(() => {
     loadRoadmap();
   }, [evaluationId]);
+
+  const renderConfigDialog = () => (
+    <Dialog open={configDialogOpen} onClose={() => setConfigDialogOpen(false)} maxWidth="sm" fullWidth>
+      <DialogTitle>Parámetros del Roadmap</DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          El presupuesto y las estimaciones económicas <strong>no forman parte de la evaluación</strong>:
+          dependen del contexto de cada empresa. Ingresa los parámetros de este caso.
+        </Typography>
+        <TextField
+          select
+          fullWidth
+          label="Tamaño de la empresa"
+          value={companySize}
+          onChange={(e) => setCompanySize(e.target.value as any)}
+          sx={{ mb: 2, mt: 1 }}
+          helperText="Escala las estimaciones de costo y esfuerzo de cada proyecto"
+        >
+          <MenuItem value="small">Pequeña (&lt;50 empleados) — costos ×0.5</MenuItem>
+          <MenuItem value="medium">Mediana (50-250 empleados) — costos ×1.0</MenuItem>
+          <MenuItem value="large">Grande (&gt;250 empleados o multi-sitio) — costos ×1.8</MenuItem>
+        </TextField>
+        <TextField
+          fullWidth
+          type="number"
+          label="Presupuesto disponible (opcional)"
+          value={budget}
+          onChange={(e) => setBudget(e.target.value)}
+          inputProps={{ min: 0 }}
+          helperText="Si se define, el roadmap solo incluirá mejoras que quepan en el presupuesto, priorizando mayor ROI por esfuerzo"
+        />
+        <Alert severity="info" sx={{ mt: 2 }}>
+          Las estimaciones de costo, esfuerzo y ROI son referenciales y deben validarse con cotizaciones reales.
+        </Alert>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setConfigDialogOpen(false)}>Cancelar</Button>
+        <Button variant="contained" onClick={generateRoadmap} disabled={loading}>
+          {loading ? 'Generando...' : 'Generar Roadmap'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   if (loading && !roadmap) {
     return (
@@ -84,10 +141,16 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
           <Typography variant="body1" gutterBottom>
             No se ha generado un roadmap para esta evaluación.
           </Typography>
-          <button onClick={generateRoadmap} style={{ marginTop: '1rem' }}>
+          <Button
+            variant="contained"
+            onClick={() => setConfigDialogOpen(true)}
+            disabled={loading}
+            sx={{ mt: 2 }}
+          >
             Generar Roadmap
-          </button>
+          </Button>
         </Box>
+        {renderConfigDialog()}
       </Box>
     );
   }
@@ -133,12 +196,13 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
         <Box textAlign="center" mt={2}>
           <Button
             variant="contained"
-            onClick={generateRoadmap}
+            onClick={() => setConfigDialogOpen(true)}
             disabled={loading}
           >
             {loading ? 'Regenerando...' : 'Regenerar Roadmap'}
           </Button>
         </Box>
+        {renderConfigDialog()}
       </Box>
     );
   }
@@ -162,6 +226,15 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
               label={`Inversión: ${formatCurrency(roadmap.totalInvestment)}`}
             />
           )}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setConfigDialogOpen(true)}
+            disabled={loading}
+            sx={{ ml: 1 }}
+          >
+            Regenerar
+          </Button>
           {canEditConfig && (
             <Button
               variant="outlined"
@@ -175,6 +248,24 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
           )}
         </Box>
       </Box>
+
+      <Alert severity="warning" sx={{ mb: 2 }}>
+        {roadmap.estimatesDisclaimer ||
+          roadmap.parameters?.disclaimer ||
+          'Las estimaciones de costo, esfuerzo y ROI son referenciales y deben validarse con cotizaciones reales por proyecto.'}
+        {roadmap.parameters && (
+          <>
+            {' '}
+            Parámetros usados: tamaño <strong>{roadmap.parameters.companySizeLabel}</strong>
+            {roadmap.parameters.budget
+              ? `, presupuesto ${formatCurrency(roadmap.parameters.budget)}`
+              : ', sin límite de presupuesto'}
+            .
+          </>
+        )}
+        {roadmap.excludedByBudget > 0 &&
+          ` ${roadmap.excludedByBudget} mejora(s) quedaron fuera por restricción de presupuesto.`}
+      </Alert>
 
       {phases.map((phase: any, index: number) => (
         <Accordion key={index} defaultExpanded={index === 0}>
@@ -212,11 +303,26 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
                         {improvement.description}
                       </Typography>
 
+                      {Array.isArray(improvement.actions) && improvement.actions.length > 0 && (
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                            Acciones recomendadas
+                          </Typography>
+                          <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                            {improvement.actions.map((action: string, actionIdx: number) => (
+                              <Typography key={actionIdx} component="li" variant="body2">
+                                {action}
+                              </Typography>
+                            ))}
+                          </Box>
+                        </Box>
+                      )}
+
                       <Box display="flex" gap={1} flexWrap="wrap" mt={2}>
-                        {improvement.roi?.estimated && (
+                        {improvement.roi?.estimated != null && (
                           <Chip
                             label={`ROI: ${(improvement.roi.estimated * 100).toFixed(0)}%`}
-                            color="success"
+                            color={improvement.roi.estimated > 0 ? 'success' : 'default'}
                             size="small"
                           />
                         )}
@@ -226,13 +332,33 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
                             size="small"
                           />
                         )}
-                        {improvement.effort?.cost && (
+                        {improvement.effort?.cost != null && (
                           <Chip
                             label={formatCurrency(improvement.effort.cost)}
                             size="small"
                           />
                         )}
+                        {improvement.roi?.paybackMonths != null &&
+                          Number.isFinite(improvement.roi.paybackMonths) && (
+                            <Chip
+                              label={`Payback: ${improvement.roi.paybackMonths.toFixed(0)} meses`}
+                              size="small"
+                              variant="outlined"
+                            />
+                          )}
                       </Box>
+
+                      {Array.isArray(improvement.effort?.resources) &&
+                        improvement.effort.resources.length > 0 && (
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            display="block"
+                            sx={{ mt: 1 }}
+                          >
+                            Recursos: {improvement.effort.resources.join(', ')}
+                          </Typography>
+                        )}
                     </CardContent>
                   </Card>
                 </Grid>
@@ -255,6 +381,8 @@ export const RoadmapView = ({ evaluationId }: RoadmapViewProps) => {
           </CardContent>
         </Card>
       )}
+
+      {renderConfigDialog()}
     </Box>
   );
 };

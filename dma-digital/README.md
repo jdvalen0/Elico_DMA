@@ -20,16 +20,22 @@ cd dma-digital
 cp .env.example .env
 # Editar .env con tus valores
 
-# 3. Iniciar servicios
-docker-compose up -d
+# 3. Crear la red externa (una sola vez por equipo; docker-compose.yml
+#    la declara como external para compartirla con otros proyectos)
+docker network create shared_net
 
-# 4. Configurar base de datos
-docker-compose exec backend npx prisma migrate deploy
-docker-compose exec backend npm run create-user admin@elico.com admin123
+# 4. Iniciar servicios
+docker compose up -d
 
-# 5. Acceder
-# Frontend: http://localhost:3000
-# Backend: http://localhost:3001
+# 5. Configurar base de datos
+#    (no hay migraciones versionadas: el esquema se sincroniza con db push)
+docker compose exec backend npx prisma db push
+docker compose exec backend npm run create-user admin@elico.com admin123
+
+# 6. Acceder
+# Frontend: http://localhost:3002
+# Backend:  http://localhost:3001
+# Postgres: localhost:5433
 ```
 
 ### Desarrollo Nativo
@@ -45,7 +51,8 @@ Ver [INSTALACION_WINDOWS.md](./INSTALACION_WINDOWS.md) para instrucciones espec�
 ## 📚 Documentación
 
 - **[GUIA_USO_E_INTERPRETACION.md](./GUIA_USO_E_INTERPRETACION.md)**: Guía completa de uso de la aplicación, interpretación de resultados, y detalles de cada dimensión y subcriterio
-- **[ACTUALIZACION_JUL2026.md](./ACTUALIZACION_JUL2026.md)**: Pasos para actualizar en producción (ayuda en línea + orden D01–D09)
+- **[ACTUALIZACION_AGO2026.md](./ACTUALIZACION_AGO2026.md)**: Pasos para actualizar en producción (autoguardado, roadmap paramétrico, evidencias y reportes)
+- **[ACTUALIZACION_JUL2026.md](./ACTUALIZACION_JUL2026.md)**: Actualización previa (ayuda en línea + orden D01–D09)
 - **[ARQUITECTURA_TECNICA.md](./ARQUITECTURA_TECNICA.md)**: Arquitectura del sistema, stack tecnológico, mejores prácticas, y problemas resueltos
 - **[FUNDAMENTACION_CIENTIFICA.md](./FUNDAMENTACION_CIENTIFICA.md)**: Modelo matemático, estado del arte, validación científica, y tendencias internacionales
 
@@ -151,7 +158,20 @@ Para más detalles, consulta [GUIA_USO_E_INTERPRETACION.md](./GUIA_USO_E_INTERPR
 
 ### Actualizar en otro equipo (producción)
 
-Si ya tienes una instalación en marcha, sigue [ACTUALIZACION_JUL2026.md](./ACTUALIZACION_JUL2026.md): `git pull`, reconstruir servicios y ejecutar `migrate-dimension-codes.ts` si hay datos existentes.
+Si ya tienes una instalación en marcha, sigue la guía de la release vigente:
+
+- **[ACTUALIZACION_AGO2026.md](./ACTUALIZACION_AGO2026.md)** (actual): autoguardado, roadmap paramétrico, fix evidencias y reportes. Incluye `prisma db push` obligatorio.
+- [ACTUALIZACION_JUL2026.md](./ACTUALIZACION_JUL2026.md) (previa): ayuda en línea y códigos D01–D09, con `migrate-dimension-codes.ts` para datos existentes.
+
+Notas adicionales para cualquier actualización:
+
+```bash
+# La red externa debe existir (una sola vez por equipo)
+docker network create shared_net 2>/dev/null || true
+
+# Si el esquema de Prisma cambió (p. ej. nuevos campos en roadmaps), sincronizar:
+docker compose exec backend npx prisma db push
+```
 
 ---
 

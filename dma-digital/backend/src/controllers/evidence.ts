@@ -7,6 +7,14 @@ import { MinioClient } from '../services/storage';
 const prisma = new PrismaClient();
 const minio = new MinioClient();
 
+// BigInt no es serializable por JSON.stringify: convertir fileSize a Number
+function serializeEvidence<T extends { fileSize: bigint | null }>(e: T) {
+  return {
+    ...e,
+    fileSize: e.fileSize != null ? Number(e.fileSize) : null,
+  };
+}
+
 export const uploadEvidence = async (req: AuthRequest, res: Response) => {
   const { evaluationId } = req.params;
   const { type, description, subcriterionId } = req.body;
@@ -53,7 +61,7 @@ export const uploadEvidence = async (req: AuthRequest, res: Response) => {
     },
   });
 
-  res.status(201).json(evidence);
+  res.status(201).json(serializeEvidence(evidence));
 };
 
 export const getEvidence = async (req: AuthRequest, res: Response) => {
@@ -103,7 +111,7 @@ export const getEvidence = async (req: AuthRequest, res: Response) => {
           url = '';
         }
       }
-      return { ...e, url };
+      return { ...serializeEvidence(e), url };
     })
   );
 

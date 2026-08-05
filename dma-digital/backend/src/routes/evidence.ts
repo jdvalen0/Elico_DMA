@@ -8,7 +8,10 @@ import {
 import multer from 'multer';
 import { asyncHandler } from '../utils/asyncHandler';
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB máximo por evidencia
+});
 
 export const evidenceRoutes = Router();
 
@@ -20,4 +23,4 @@ evidenceRoutes.post(
   asyncHandler(uploadEvidence)
 );
 evidenceRoutes.get('/evaluations/:evaluationId/evidence', asyncHandler(getEvidence));
-evidenceRoutes.delete('/evidence/:id', asyncHandler(deleteEvidence));
+evidenceRoutes.delete('/:id', asyncHandler(deleteEvidence));

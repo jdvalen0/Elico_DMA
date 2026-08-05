@@ -10,7 +10,7 @@ const economicConfigSchema = z.object({
   currency: z.string().min(1),
   costPerMonth: z.number().min(0),
   valuePerMaturityPoint: z.number().min(0),
-  exchangeRate: z.number().optional(),
+  exchangeRate: z.number().min(0).nullish(),
   quickWinThreshold: z.number().min(0).max(1).optional(),
   maxQuickWinMonths: z.number().int().min(1).max(12).optional(),
   evaluationId: z.string().uuid().optional(),

@@ -8,7 +8,15 @@ const prisma = new PrismaClient();
 
 export const generateRoadmap = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
-  const { targetMaturity, timeframe, budget, priorities } = req.body;
+  const { targetMaturity, timeframe, budget, companySize, priorities } = req.body;
+
+  if (companySize && !['small', 'medium', 'large'].includes(companySize)) {
+    throw new AppError(400, 'companySize must be small, medium or large', 'VALIDATION_ERROR');
+  }
+
+  if (budget !== undefined && budget !== null && (typeof budget !== 'number' || budget < 0)) {
+    throw new AppError(400, 'budget must be a positive number', 'VALIDATION_ERROR');
+  }
 
   const evaluation = await prisma.evaluation.findFirst({
     where: {
@@ -37,12 +45,13 @@ export const generateRoadmap = async (req: AuthRequest, res: Response) => {
       targetMaturity: targetMaturity || 4.0,
       timeframe: timeframe || 24,
       budget: budget,
+      companySize: companySize || 'medium',
       priorities: priorities || [],
     },
     req.user!.tenantId
   );
 
-  // Guardar roadmap (incluyendo currency en phases)
+  // Guardar roadmap (incluyendo parámetros de generación)
   await prisma.roadmap.upsert({
     where: { evaluationId: id },
     create: {
@@ -51,16 +60,20 @@ export const generateRoadmap = async (req: AuthRequest, res: Response) => {
       totalROI: roadmap.totalROI,
       totalInvestment: roadmap.totalInvestment,
       totalAnnualValue: roadmap.totalAnnualValue,
+      parameters: roadmap.parameters as any,
+      excludedByBudget: roadmap.excludedByBudget,
     },
     update: {
       phases: roadmap.phases as any,
       totalROI: roadmap.totalROI,
       totalInvestment: roadmap.totalInvestment,
       totalAnnualValue: roadmap.totalAnnualValue,
+      parameters: roadmap.parameters as any,
+      excludedByBudget: roadmap.excludedByBudget,
     },
   });
 
-  // Incluir currency en la respuesta
+  // Incluir currency y metadatos de generación en la respuesta
   const roadmapResponse = {
     ...roadmap,
     currency: roadmap.currency,

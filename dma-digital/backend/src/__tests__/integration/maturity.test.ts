@@ -1,10 +1,10 @@
 import request from 'supertest';
 import express from 'express';
-import { maturityRoutes } from '../../../routes/maturity';
-import { authenticateToken } from '../../../middleware/auth';
-import { errorHandler } from '../../../middleware/errorHandler';
+import { maturityRoutes } from '../../routes/maturity';
+import { authenticateToken } from '../../middleware/auth';
+import { errorHandler } from '../../middleware/errorHandler';
 import { createTestUser, generateAuthToken, createTestEvaluation } from '../helpers/testHelpers';
-import { initializeDimensions } from '../../../services/dimensions';
+import { initializeDimensions } from '../../services/dimensions';
 import { prisma } from '../setup';
 
 const app = express();

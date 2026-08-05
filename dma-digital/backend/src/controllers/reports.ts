@@ -62,13 +62,18 @@ export const generateReport = async (req: AuthRequest, res: Response) => {
 
   const jobId = `job-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
+  // Roadmap asociado (si existe) para enriquecer el reporte ejecutivo
+  const roadmap = await prisma.roadmap.findUnique({
+    where: { evaluationId: id },
+  });
+
   // Iniciar generación en background
   reportJobs.set(jobId, {
     status: 'processing',
     progress: 0,
   });
 
-  generatePDFReport(evaluation, responses, type || 'executive', options || {})
+  generatePDFReport(evaluation, responses, type || 'executive', { ...(options || {}), roadmap })
     .then((pdfBuffer) => {
       reportJobs.set(jobId, {
         status: 'completed',

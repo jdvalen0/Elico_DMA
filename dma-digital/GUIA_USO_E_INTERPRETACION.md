@@ -1,7 +1,7 @@
 # Guía de Uso e Interpretación - DMA Digital ELICO 4.0
 
-**Versión**: 1.1.0  
-**Última actualización**: Julio 2026
+**Versión**: 1.2.0  
+**Última actualización**: Agosto 2026
 
 ---
 
@@ -184,7 +184,11 @@ Los textos provienen de esta guía y están en `frontend/src/constants/subcriter
 2. **Para cada subcriterio**:
    - **Selecciona el valor**: Usa el slider (0-5) para indicar el nivel de madurez actual
    - **Agrega notas detalladas**: Explica el estado actual, menciona evidencias, iniciativas, desafíos
-   - **Guarda**: Haz clic en **"Guardar"** para cada subcriterio
+   - **No hay botón Guardar**: el sistema **guarda automáticamente** ~1 segundo después de cada cambio. Verás el indicador "Guardando… / Guardado ✓" junto al nombre del subcriterio
+
+> **Notas sobre el autoguardado**:
+> - Los cambios también se guardan al cambiar de dimensión o cerrar la pestaña.
+> - Las notas de un subcriterio **sin calificación** aún no se guardan: verás el aviso "Las notas se guardarán cuando asignes una calificación". Esto evita que una nota sin valor registre una calificación de 0 que distorsionaría la madurez.
 
 #### Qué Poner en las Notas
 
@@ -232,7 +236,7 @@ Desde la página de evaluación, haz clic en **"Dashboard"** en el menú lateral
    - Madurez global y clasificación
    - Progreso de la evaluación (% completado)
    - Estado de coherencia
-   - Gráfico radar de madurez por dimensión
+   - Gráfico radar de madurez por dimensión, con **leyenda de código + nombre completo + puntaje** de cada dimensión
 
 2. **Dimensiones**:
    - Gráfico de barras comparativo de todas las dimensiones
@@ -424,11 +428,13 @@ Ejemplo:
 #### Impacto en el Roadmap
 
 La configuración económica afecta:
-- **Costo de cada mejora**: Se calcula como `esfuerzo (meses) × costo por mes`
-- **Valor anual de cada mejora**: Se calcula como `gap de madurez × valor por punto`
+- **Costo de cada mejora**: Se calcula como `esfuerzo (meses) × costo por mes × complejidad de la dimensión × factor de tamaño de empresa`
+- **Valor anual de cada mejora**: Se calcula como `gap de madurez × valor por punto × factor de tamaño de empresa`
 - **ROI de cada mejora**: Se calcula como `(valor anual - costo) / costo`
 - **Clasificación de Quick Wins**: Basada en umbrales configurados
 - **Formato de moneda**: Todos los valores se muestran en la moneda seleccionada
+
+> La **complejidad de la dimensión** (0.7–1.4) refleja que implementar infraestructura física (redes, automatización) cuesta más que cambios organizacionales (estrategia, talento). El **factor de tamaño** se define al generar el roadmap (ver siguiente sección).
 
 #### Recomendaciones
 
@@ -453,9 +459,14 @@ La configuración económica afecta:
    - Guarda la configuración
 3. **Genera el roadmap**:
    - Desde el Dashboard, haz clic en la pestaña **"Roadmap"**
-   - Haz clic en el botón **"Generar Roadmap"** (parte superior)
+   - Haz clic en el botón **"Generar Roadmap"** (o "Regenerar")
+   - El sistema pedirá los **parámetros del caso** (no forman parte de la evaluación):
+     - **Tamaño de la empresa**: Pequeña (<50 empleados, costos ×0.5), Mediana (50-250, ×1.0) o Grande (>250 o multi-sitio, ×1.8). Escala costos, esfuerzo y valor estimado
+     - **Presupuesto disponible** (opcional): si lo defines, el roadmap solo incluye mejoras que quepan en él, priorizando mayor ROI por esfuerzo; las excluidas se indican
    - El sistema analiza gaps y genera mejoras priorizadas automáticamente
    - Los valores aparecerán en la moneda que configuraste
+
+> **Las estimaciones son referenciales**: costos, esfuerzo y ROI se calculan con heurísticas a partir de los parámetros ingresados. No constituyen una cotización; valida cada proyecto con cotizaciones reales. Los parámetros usados quedan visibles sobre el roadmap.
 
 #### Estructura del Roadmap
 
@@ -466,7 +477,10 @@ El roadmap se organiza en **3 fases**:
 - **Fase 3: Integración** (6-12 meses): Transformación completa, largo plazo
 
 Cada mejora incluye:
+- **Acciones recomendadas**: Lista de acciones concretas específicas de la dimensión (catálogo base que se enriquecerá con experiencias de implementaciones reales)
+- **Recursos sugeridos**: Roles/proveedores típicos necesarios
 - **ROI**: Retorno de inversión estimado
+- **Payback**: Meses estimados de recuperación
 - **Esfuerzo**: Meses estimados de trabajo
 - **Costo**: Estimación financiera
 - **Valor Anual**: Beneficio anual estimado
@@ -479,12 +493,12 @@ Cada mejora incluye:
 1. Navega a **"Reportes"** desde el menú lateral
 2. Selecciona la evaluación de la lista desplegable
 3. Selecciona el tipo de reporte:
-   - **Ejecutivo**: Resumen para alta dirección, enfoque estratégico
-   - **Técnico**: Detallado para equipos técnicos, incluye métricas y análisis profundo
-   - **Normativo**: Enfoque en cumplimiento normativo colombiano
+   - **Ejecutivo**: Resumen para alta dirección: madurez global, cobertura de la evaluación, fortalezas relativas, top 5 gaps, acciones concretas sugeridas y plan de inversión del roadmap (inversión, valor anual, ROI, iniciativas destacadas)
+   - **Técnico**: Análisis profundo para equipos técnicos: detalle por subcriterio con valor, notas, quién respondió y cuándo, peso de cada dimensión, cobertura y gap, estadísticas (promedio, mín, máx, desviación estándar), coherencia entre dimensiones tecnológicas (D03–D06), top 10 subcriterios con mayor gap y contribución ponderada al índice global
+   - **Normativo**: Matriz de cumplimiento por dimensión (normas aplicables, nivel referencial, acción prioritaria específica) y detalle subcriterio → norma colombiana para D12 (SG-SST, protección de datos, ambiental, energética, ciberseguridad, continuidad)
 4. Haz clic en **"Generar y Descargar Reporte"**
 5. El sistema genera el PDF en segundo plano (puede tardar 30-60 segundos)
-6. El reporte se descarga automáticamente cuando esté listo
+6. El reporte se descarga automáticamente **una sola vez** cuando esté listo
 
 **Nota**: Si el reporte tarda más de 2 minutos, puedes cancelar y volver a intentar. Si el backend se reinicia, los trabajos de generación se pierden (están en memoria).
 
@@ -505,11 +519,13 @@ Cada mejora incluye:
 1. Navega a **"Evidencias"** desde el menú lateral
 2. Selecciona la evaluación de la lista
 3. Haz clic en **"Subir Evidencia"**
-4. Selecciona el archivo (imágenes, PDFs, documentos)
+4. Selecciona el archivo (imágenes, PDFs, documentos; **máximo 10MB** por archivo)
 5. Completa:
    - **Tipo**: Foto, Documento, Video, Audio
    - **Descripción**: Qué evidencia es y cómo se relaciona con la evaluación
    - **Subcriterio** (opcional): Relacionar con un subcriterio específico
+
+> Sin MinIO configurado (`MINIO_ENABLED=false`), los archivos se almacenan en base64 en la base de datos: funciona, pero muchas fotos grandes consumen almacenamiento de BD.
 
 #### Tipos de Evidencias Recomendadas
 

@@ -43,6 +43,7 @@ export const ReportsPage = () => {
   const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isPollingRef = useRef<boolean>(false);
   const consecutive404Ref = useRef<number>(0); // Contador de 404 consecutivos
+  const downloadTriggeredRef = useRef<boolean>(false); // Evita descargas duplicadas del mismo job
 
   useEffect(() => {
     loadEvaluations();
@@ -170,6 +171,11 @@ export const ReportsPage = () => {
       if (response.data.status === 'completed') {
         console.log('✅ ReportsPage - Job completed! Downloading report...');
         stopPolling();
+        if (downloadTriggeredRef.current) {
+          console.warn('🟡 ReportsPage - Download already triggered for this job, skipping duplicate');
+          return false;
+        }
+        downloadTriggeredRef.current = true;
         setSnackbar({ open: true, message: 'Reporte generado exitosamente' });
         await downloadReport();
         return false; // Detener polling
@@ -243,6 +249,7 @@ export const ReportsPage = () => {
     // Detener cualquier polling anterior
     stopPolling();
     consecutive404Ref.current = 0; // Resetear contador de 404
+    downloadTriggeredRef.current = false; // Permitir descarga del nuevo job
     
     setGenerating(true);
     setError('');

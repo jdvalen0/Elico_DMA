@@ -1,8 +1,8 @@
 import request from 'supertest';
 import express from 'express';
-import { authRoutes } from '../../../routes/auth';
-import { errorHandler } from '../../../middleware/errorHandler';
-import { authenticateToken } from '../../../middleware/auth';
+import { authRoutes } from '../../routes/auth';
+import { errorHandler } from '../../middleware/errorHandler';
+import { authenticateToken } from '../../middleware/auth';
 import { createTestUser } from '../helpers/testHelpers';
 import { prisma } from '../setup';
 

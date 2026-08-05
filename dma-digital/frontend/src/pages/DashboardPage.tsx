@@ -75,6 +75,7 @@ export const DashboardPage = () => {
       // Preparar datos para gráfico radar
       const radarData = sortedDimensions.map((dim: any) => ({
         dimension: dim.code,
+        fullName: dim.name,
         madurez: dim.maturity || 0,
         fullMark: 5,
       }));
@@ -273,10 +274,69 @@ export const DashboardPage = () => {
                       fillOpacity={0.6}
                       strokeWidth={2}
                     />
-                    <Tooltip />
+                    <Tooltip
+                      formatter={(value: any) => [Number(value).toFixed(2), 'Madurez']}
+                      labelFormatter={(label: string) => {
+                        const dim = data.radarData.find((d: any) => d.dimension === label);
+                        return dim ? `${label}: ${dim.fullName}` : label;
+                      }}
+                    />
                     <Legend />
                   </RadarChart>
                 </ResponsiveContainer>
+
+                {/* Leyenda: código + nombre + puntaje */}
+                <Box
+                  display="flex"
+                  flexWrap="wrap"
+                  gap={1}
+                  mt={2}
+                >
+                  {data.radarData.map((dim: any) => (
+                    <Box
+                      key={dim.dimension}
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                      sx={{
+                        p: 1,
+                        borderRadius: 1,
+                        bgcolor: 'action.hover',
+                        flex: '1 1 45%',
+                        minWidth: 260,
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        fontWeight="bold"
+                        sx={{
+                          bgcolor: 'primary.main',
+                          color: 'primary.contrastText',
+                          px: 0.75,
+                          py: 0.25,
+                          borderRadius: 0.5,
+                          minWidth: 36,
+                          textAlign: 'center',
+                          fontSize: '0.7rem',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {dim.dimension}
+                      </Typography>
+                      <Typography variant="body2" sx={{ flex: 1, lineHeight: 1.2 }}>
+                        {dim.fullName}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        fontWeight="bold"
+                        color={dim.madurez >= 4 ? 'success.main' : dim.madurez >= 2.5 ? 'warning.main' : 'error.main'}
+                        sx={{ whiteSpace: 'nowrap' }}
+                      >
+                        {dim.madurez > 0 ? dim.madurez.toFixed(2) : '—'}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
               </CardContent>
             </Card>
           </Grid>
